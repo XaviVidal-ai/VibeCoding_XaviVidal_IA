@@ -1,0 +1,584 @@
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Laboral - FP IPO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .lang-toggle {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+
+        .lang-toggle:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .section-title {
+            font-size: 22px;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .help-icon {
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .help-icon:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+
+        .tooltip {
+            display: none;
+            position: fixed;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 400px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            line-height: 1.6;
+        }
+
+        .tooltip.active {
+            display: block;
+        }
+
+        .tooltip h4 {
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+        }
+
+        .results.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-title {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item.total {
+            background: #667eea;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            margin-top: 15px;
+        }
+
+        .result-label {
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .result-item.total .result-value {
+            color: white;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .subsection {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="main-title">Calculadora de Quitança i Indemnització</h1>
+            <p id="subtitle">Eina educativa per a Formació Professional</p>
+            <button class="lang-toggle" onclick="toggleLanguage()">
+                <span id="lang-btn">ES</span> Castellano
+            </button>
+        </div>
+
+        <div class="content">
+            <!-- Dades bàsiques -->
+            <div class="section">
+                <h2 class="section-title" id="basic-title">Dades Bàsiques del Treballador</h2>
+                
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <label id="label-salary" for="salary">Salari Mensual Brut (€):</label>
+                        <input type="number" id="salary" placeholder="1500" step="0.01">
+                    </div>
+                    <div class="help-icon" onclick="showTooltip(event, 'salary')">i</div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <label id="label-start" for="start-date">Data d'Inici del Contracte:</label>
+                        <input type="date" id="start-date">
+                    </div>
+                    <div class="help-icon" onclick="showTooltip(event, 'dates')">i</div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <label id="label-end" for="end-date">Data de Fi del Contracte:</label>
+                        <input type="date" id="end-date">
+                    </div>
+                    <div class="help-icon" onclick="showTooltip(event, 'dates')">i</div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <label id="label-extra" for="extra-pays">Nombre de Pagues Extres a l'Any:</label>
+                        <input type="number" id="extra-pays" value="2" min="0" max="14">
+                    </div>
+                    <div class="help-icon" onclick="showTooltip(event, 'extra')">i</div>
+                </div>
+            </div>
+
+            <!-- Quitança -->
+            <div class="section">
+                <h2 class="section-title" id="quit-title">Càlcul de la Quitança</h2>
+                
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <label id="label-days-worked" for="days-worked">Dies Treballats del Mes en Curs:</label>
+                        <input type="number" id="days-worked" min="0" max="31" placeholder="15">
+                    </div>
+                    <div class="help-icon" onclick="showTooltip(event, 'days')">i</div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <label id="label-vacation" for="vacation-days">Dies de Vacances No Gaudides:</label>
+                        <input type="number" id="vacation-days" min="0" placeholder="10" step="0.5">
+                    </div>
+                    <div class="help-icon" onclick="showTooltip(event, 'vacation')">i</div>
+                </div>
+            </div>
+
+            <!-- Indemnització -->
+            <div class="section">
+                <h2 class="section-title" id="indem-title">Càlcul de la Indemnització</h2>
+                
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <label id="label-type" for="dismissal-type">Tipus de Finalització del Contracte:</label>
+                        <select id="dismissal-type">
+                            <option value="0" id="opt-voluntary">Baixa Voluntària (0 dies/any)</option>
+                            <option value="12" id="opt-temp">Fi de Contracte Temporal (12 dies/any)</option>
+                            <option value="20" id="opt-objective">Acomiadament Objectiu (20 dies/any)</option>
+                            <option value="33" id="opt-unfair">Acomiadament Improcedent (33 dies/any)</option>
+                        </select>
+                    </div>
+                    <div class="help-icon" onclick="showTooltip(event, 'dismissal')">i</div>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculate()">
+                <span id="calc-btn">Calcular Quitança i Indemnització</span>
+            </button>
+
+            <!-- Resultats -->
+            <div class="results" id="results">
+                <h3 class="result-title" id="results-title">Desglossament de Quantitats</h3>
+                
+                <div id="quit-section">
+                    <h4 style="color: #667eea; margin-bottom: 15px;" id="quit-subtitle">QUITANÇA</h4>
+                    <div class="result-item">
+                        <span class="result-label" id="res-salary">Salari dies treballats:</span>
+                        <span class="result-value" id="salary-result">0.00 €</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label" id="res-vacation">Vacances no gaudides:</span>
+                        <span class="result-value" id="vacation-result">0.00 €</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label" id="res-extra">Pagues extres pendents:</span>
+                        <span class="result-value" id="extra-result">0.00 €</span>
+                    </div>
+                    <div class="result-item" style="background: #3498db; color: white; border: none;">
+                        <span class="result-label" id="res-quit-total">Subtotal Quitança:</span>
+                        <span class="result-value" style="color: white;" id="quit-total">0.00 €</span>
+                    </div>
+                </div>
+
+                <div class="subsection" id="indem-section">
+                    <h4 style="color: #667eea; margin-bottom: 15px;" id="indem-subtitle">INDEMNITZACIÓ</h4>
+                    <div class="result-item">
+                        <span class="result-label" id="res-years">Temps treballat:</span>
+                        <span class="result-value" id="years-result">0 anys</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label" id="res-indem">Indemnització:</span>
+                        <span class="result-value" id="indem-result">0.00 €</span>
+                    </div>
+                </div>
+
+                <div class="result-item total">
+                    <span class="result-label" id="res-total">TOTAL A PERCEBRE:</span>
+                    <span class="result-value" id="total-result">0.00 €</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p id="footer-text">Projecte educatiu per a IPO I - Creat amb l'ajuda del Superagente de IA educativa</p>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        let currentLang = 'ca';
+
+        const translations = {
+            ca: {
+                mainTitle: 'Calculadora de Quitança i Indemnització',
+                subtitle: 'Eina educativa per a Formació Professional',
+                langBtn: 'ES',
+                langText: 'Castellano',
+                basicTitle: 'Dades Bàsiques del Treballador',
+                labelSalary: 'Salari Mensual Brut (€):',
+                labelStart: 'Data d\'Inici del Contracte:',
+                labelEnd: 'Data de Fi del Contracte:',
+                labelExtra: 'Nombre de Pagues Extres a l\'Any:',
+                quitTitle: 'Càlcul de la Quitança',
+                labelDaysWorked: 'Dies Treballats del Mes en Curs:',
+                labelVacation: 'Dies de Vacances No Gaudides:',
+                indemTitle: 'Càlcul de la Indemnització',
+                labelType: 'Tipus de Finalització del Contracte:',
+                optVoluntary: 'Baixa Voluntària (0 dies/any)',
+                optTemp: 'Fi de Contracte Temporal (12 dies/any)',
+                optObjective: 'Acomiadament Objectiu (20 dies/any)',
+                optUnfair: 'Acomiadament Improcedent (33 dies/any)',
+                calcBtn: 'Calcular Quitança i Indemnització',
+                resultsTitle: 'Desglossament de Quantitats',
+                quitSubtitle: 'QUITANÇA',
+                resSalary: 'Salari dies treballats:',
+                resVacation: 'Vacances no gaudides:',
+                resExtra: 'Pagues extres pendents:',
+                resQuitTotal: 'Subtotal Quitança:',
+                indemSubtitle: 'INDEMNITZACIÓ',
+                resYears: 'Temps treballat:',
+                resIndem: 'Indemnització:',
+                resTotal: 'TOTAL A PERCEBRE:',
+                footerText: 'Projecte educatiu per a IPO I - Creat amb l\'ajuda del Superagente de IA educativa',
+                years: 'anys',
+                tooltips: {
+                    salary: '<h4>Salari Mensual Brut</h4><p>És la quantitat total que el treballador rep cada mes abans de descomptes (IRPF, Seguretat Social). Inclou el salari base i complements salarials. El <strong>salari diari</strong> es calcula dividint el salari mensual entre 30 dies.</p>',
+                    dates: '<h4>Dates del Contracte</h4><p>La data d\'inici i fi determinen l\'<strong>antiguitat</strong> del treballador. Això és crucial per calcular les vacances meritades i la indemnització. El temps treballat es calcula en anys i dies proporcionalment.</p>',
+                    extra: '<h4>Pagues Extres</h4><p>Són retribucions addicionals al salari mensual. El més habitual a Espanya són 2 pagues extres (estiu i Nadal), encara que poden ser més segons el conveni. Es meriten proporcionalment durant l\'any (devengo).</p>',
+                    days: '<h4>Dies Treballats del Mes</h4><p>Si el treballador finalitza el contracte a meitat de mes, només té dret al salari dels dies efectivament treballats. Es calcula: (Salari mensual ÷ 30) × dies treballats.</p>',
+                    vacation: '<h4>Vacances No Gaudides</h4><p>Els treballadors tenen dret a 30 dies naturals de vacances per any treballat (segons l\'Estatut dels Treballadors). Les vacances es <strong>meriten proporcionalment</strong> cada mes (2,5 dies/mes). Si el treballador no les ha gaudit, s\'han d\'abonar en la quitança.</p>',
+                    dismissal: '<h4>Tipus de Finalització</h4><p><strong>Baixa Voluntària:</strong> No hi ha indemnització.<br><strong>Fi de Contracte Temporal:</strong> 12 dies de salari per any treballat.<br><strong>Acomiadament Objectiu:</strong> 20 dies per any (causes econòmiques, tècniques...).<br><strong>Acomiadament Improcedent:</strong> 33 dies per any (màxim 24 mensualitats) quan l\'acomiadament no està justificat.</p>'
+                }
+            },
+            es: {
+                mainTitle: 'Calculadora de Finiquito e Indemnización',
+                subtitle: 'Herramienta educativa para Formación Profesional',
+                langBtn: 'CA',
+                langText: 'Català',
+                basicTitle: 'Datos Básicos del Trabajador',
+                labelSalary: 'Salario Mensual Bruto (€):',
+                labelStart: 'Fecha de Inicio del Contrato:',
+                labelEnd: 'Fecha de Fin del Contrato:',
+                labelExtra: 'Número de Pagas Extras al Año:',
+                quitTitle: 'Cálculo del Finiquito',
+                labelDaysWorked: 'Días Trabajados del Mes en Curso:',
+                labelVacation: 'Días de Vacaciones No Disfrutadas:',
+                indemTitle: 'Cálculo de la Indemnización',
+                labelType: 'Tipo de Finalización del Contrato:',
+                optVoluntary: 'Baja Voluntaria (0 días/año)',
+                optTemp: 'Fin de Contrato Temporal (12 días/año)',
+                optObjective: 'Despido Objetivo (20 días/año)',
+                optUnfair: 'Despido Improcedente (33 días/año)',
+                calcBtn: 'Calcular Finiquito e Indemnización',
+                resultsTitle: 'Desglose de Cantidades',
+                quitSubtitle: 'FINIQUITO',
+                resSalary: 'Salario días trabajados:',
+                resVacation: 'Vacaciones no disfrutadas:',
+                resExtra: 'Pagas extras pendientes:',
+                resQuitTotal: 'Subtotal Finiquito:',
+                indemSubtitle: 'INDEMNIZACIÓN',
+                resYears: 'Tiempo trabajado:',
+                resIndem: 'Indemnización:',
+                resTotal: 'TOTAL A PERCIBIR:',
+                footerText: 'Proyecto educativo para IPO I - Creado con la ayuda del Superagente de IA educativa',
+                years: 'años',
+                tooltips: {
+                    salary: '<h4>Salario Mensual Bruto</h4><p>Es la cantidad total que el trabajador recibe cada mes antes de descuentos (IRPF, Seguridad Social). Incluye el salario base y complementos salariales. El <strong>salario diario</strong> se calcula dividiendo el salario mensual entre 30 días.</p>',
+                    dates: '<h4>Fechas del Contrato</h4><p>La fecha de inicio y fin determinan la <strong>antigüedad</strong> del trabajador. Esto es crucial para calcular las vacaciones meritadas y la indemnización. El tiempo trabajado se calcula en años y días proporcionalmente.</p>',
+                    extra: '<h4>Pagas Extras</h4><p>Son retribuciones adicionales al salario mensual. Lo más habitual en España son 2 pagas extras (verano y Navidad), aunque pueden ser más según el convenio. Se meritan proporcionalmente durante el año (devengo).</p>',
+                    days: '<h4>Días Trabajados del Mes</h4><p>Si el trabajador finaliza el contrato a mitad de mes, solo tiene derecho al salario de los días efectivamente trabajados. Se calcula: (Salario mensual ÷ 30) × días trabajados.</p>',
+                    vacation: '<h4>Vacaciones No Disfrutadas</h4><p>Los trabajadores tienen derecho a 30 días naturales de vacaciones por año trabajado (según el Estatuto de los Trabajadores). Las vacaciones se <strong>meritan proporcionalmente</strong> cada mes (2,5 días/mes). Si el trabajador no las ha disfrutado, se deben abonar en el finiquito.</p>',
+                    dismissal: '<h4>Tipo de Finalización</h4><p><strong>Baja Voluntaria:</strong> No hay indemnización.<br><strong>Fin de Contrato Temporal:</strong> 12 días de salario por año trabajado.<br><strong>Despido Objetivo:</strong> 20 días por año (causas económicas, técnicas...).<br><strong>Despido Improcedente:</strong> 33 días por año (máximo 24 mensualidades) cuando el despido no está justificado.</p>'
+                }
+            }
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ca' ? 'es' : 'ca';
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            const t = translations[currentLang];
+            document.getElementById('main-title').textContent = t.mainTitle;
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('lang-btn').textContent = t.langBtn;
+            document.querySelector('.lang-toggle').innerHTML = `<span id="lang-btn">${t.langBtn}</span> ${t.langText}`;
+            document.getElementById('basic-title').textContent = t.basicTitle;
+            document.getElementById('label-salary').textContent = t.labelSalary;
+            document.getElementById('label-start').textContent = t.labelStart;
+            document.getElementById('label-end').textContent = t.labelEnd;
+            document.getElementById('label-extra').textContent = t.labelExtra;
+            document.getElementById('quit-title').textContent = t.quitTitle;
+            document.getElementById('label-days-worked').textContent = t.labelDaysWorked;
+            document.getElementById('label-vacation').textContent = t.labelVacation;
+            document.getElementById('indem-title').textContent = t.indemTitle;
+            document.getElementById('label-type').textContent = t.labelType;
+            document.getElementById('opt-voluntary').textContent = t.optVoluntary;
+            document.getElementById('opt-temp').textContent = t.optTemp;
+            document.getElementById('opt-objective').textContent = t.optObjective;
+            document.getElementById('opt-unfair').textContent = t.optUnfair;
+            document.getElementById('calc-btn').textContent = t.calcBtn;
+            document.getElementById('results-title').textContent = t.resultsTitle;
+            document.getElementById('quit-subtitle').textContent = t.quitSubtitle;
+            document.getElementById('res-salary').textContent = t.resSalary;
+            document.getElementById('res-vacation').textContent = t.resVacation;
+            document.getElementById('res-extra').textContent = t.resExtra;
+            document.getElementById('res-quit-total').textContent = t.resQuitTotal;
+            document.getElementById('indem-subtitle').textContent = t.indemSubtitle;
+            document.getElementById('res-years').textContent = t.resYears;
+            document.getElementById('res-indem').textContent = t.resIndem;
+            document.getElementById('res-total').textContent = t.resTotal;
+            document.getElementById('footer-text').textContent = t.footerText;
+        }
+
+        function showTooltip(event, type) {
+            const tooltip = document.getElementById('tooltip');
+            const t = translations[currentLang].tooltips;
+            
+            tooltip.innerHTML = t[type];
+            tooltip.classList.add('active');
+            
+            const rect = event.target.getBoundingClientRect();
+            tooltip.style.left = (rect.left + window.scrollX - 200) + 'px';
+            tooltip.style.top = (rect.bottom + window.scrollY + 10) + 'px';
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('help-icon')) {
+                document.getElementById('tooltip').classList.remove('active');
+            }
+        });
+
+        function calculate() {
+            const salary = parseFloat(document.getElementById('salary').value) || 0;
+            const startDate = new Date(document.getElementById('start-date').value);
+            const endDate = new Date(document.getElementById('end-date').value);
+            const extraPays = parseInt(document.getElementById('extra-pays').value) || 0;
+            const daysWorked = parseInt(document.getElementById('days-worked').value) || 0;
+            const vacationDays = parseFloat(document.getElementById('vacation-days').value) || 0;
+            const dismissalType = parseInt(document.getElementById('dismissal-type').value);
+
+            if (!salary || !startDate || !endDate) {
+                alert(currentLang === 'ca' ? 'Si us plau, omple tots els camps obligatoris' : 'Por favor, rellena todos los campos obligatorios');
+                return;
+            }
+
+            // Càlcul salari diari
+            const dailySalary = salary / 30;
+
+            // 1. Salari dies treballats
+            const salaryWorked = dailySalary * daysWorked;
+
+            // 2. Vacances no gaudides
+            const vacationPay = dailySalary * vacationDays;
+
+            // 3. Pagues extres pendents
+            const monthsWorked = (endDate - startDate) / (1000 * 60 * 60 * 24 * 30);
+            const extraPaysPending = (salary * extraPays * (monthsWorked % 12)) / 12;
+
+            // Total quitança
+            const quitTotal = salaryWorked + vacationPay + extraPaysPending;
+
+            // 4. Indemnització
+            const yearsWorked = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365);
+            const indemnification = (salary * dismissalType * yearsWorked) / 30;
+
+            // Total a percebre
+            const total = quitTotal + indemnification;
+
+            // Mostrar resultats
+            document.getElementById('salary-result').textContent = salaryWorked.toFixed(2) + ' €';
+            document.getElementById('vacation-result').textContent = vacationPay.toFixed(2) + ' €';
+            document.getElementById('extra-result').textContent = extraPaysPending.toFixed(2) + ' €';
+            document.getElementById('quit-total').textContent = quitTotal.toFixed(2) + ' €';
+            document.getElementById('years-result').textContent = yearsWorked.toFixed(2) + ' ' + translations[currentLang].years;
+            document.getElementById('indem-result').textContent = indemnification.toFixed(2) + ' €';
+            document.getElementById('total-result').textContent = total.toFixed(2) + ' €';
+
+            document.getElementById('results').classList.add('active');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Inicialitzar idioma
+        updateLanguage();
+    </script>
+</body>
+</html>
